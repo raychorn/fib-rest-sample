@@ -18,3 +18,11 @@ As part of your screening, please provide a sample project for review:
 
 2. Set this project up on Github.  Include whatever instructions are necessary to build and deploy/run the project, where "deploy/run" means the web service is accepting requests and responding to them as appropriate.
 3. While this project is admittedly trivial, approach it as representing a more complex problem that you'll have to put into production and maintain for 5 years.
+
+
+Directions:
+
+(1). Pull from GitHub.
+(2). python restwebservice.py 8080
+
+Cheers
