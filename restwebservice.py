@@ -15,7 +15,11 @@ As part of your screening, please provide a sample project for review:
 2. Set this project up on Github.  Include whatever instructions are necessary to build and deploy/run the project, where "deploy/run" means the web service is accepting requests and responding to them as appropriate.
 3. While this project is admittedly trivial, approach it as representing a more complex problem that you'll have to put into production and maintain for 5 years.
 """
+import sys
 import web
+
+import Queue
+import threading
 
 urls = (
     '/', 'Index',
@@ -67,6 +71,52 @@ class ViewXML:
 app = web.application(urls, globals())
 app.notfound = notfound
 
+def unit_tests():
+    import time
+    import urllib2
+    from xml.dom import minidom
+
+    def begin_tests(url):
+        print url
+        foo = urllib2.urlopen(url).read()
+        print 'Test #1'
+        try:
+            assert foo == '<fibonacci><value index="0">0</value><value index="1">1</value><value index="2">1</value><value index="3">2</value><value index="4">3</value></fibonacci>', 'ERROR: Test #1 FAILED !!!'
+            try:
+                print 'Test #2 - Determine if the XML can be parsed ?!?', 
+                xmldoc = minidom.parseString(foo)
+                print ' PASSED !!!  Able to parse the XML so it must be well formed or so the theory goes at this point.'
+                nodes = xmldoc.firstChild.childNodes
+                print 'Test #3 - Determine if the XML contains 5 nodes ?!?'
+                assert len(nodes) == 5, 'ERROR: Test #3 FAILED !!!'
+                print 'Unit Test Recap - (1) The XML was exactly as expected AND it is seemingly well-formed therfore all is right in the universe.'
+            except Exception, ex:
+                print " FAILED (Reason: %s) !!!  Not-Able to parse the XML so it must NOT be all that well formed, and that's just too bad, isn't it ?" % (ex)
+        except:
+            pass
+        print foo
+        print 'Unit test(s) are done !!!'
+        try:
+            t._Thread__stop()
+            print 'Thread Terminated !!!'
+        except:
+            pass
+        
+    port = sys.argv[1]
+    url = 'http://127.0.0.1:%s/XML/5'%(port)
+    t = threading.Thread(target=begin_tests, args=[url])
+    t.daemon = False
+    print 'Unit Test(s) begin in 5 secs...'
+    time.sleep(5)
+    t.start()
+    
 if __name__ == '__main__':
-    app.run()
+    def begin_web_server():
+        app.run()
+    
+    t = threading.Thread(target=begin_web_server)
+    t.daemon = False
+    t.start()
+    
+    unit_tests()
   
